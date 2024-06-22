@@ -45,8 +45,7 @@ class TxT(object):
 ➜ /acceptall - To accept all the pending join requests
 ➜ /declineall - To decline all the pending join requests
 
-⚠️ <b> Support HTML & Markdown formating in welcome or leave message for more info <a href=https://core.telegram.org/api/entities#:~:text=%2C%20MadelineProto.-,Allowed%20entities,-For%20example%20the> Link </a>. </b>
 
 
-<b>⦿ Developer:</b> <a href=https://t.me/aayanokozi>~ 𝑨𝐘𝐀𝐍𝐎𝐊𝐎𝐙𝐈 ☠️</a>
+<b>⦿ Developer:</b> <a href=https://t.me/Requestacceptingxbot>~ CLICK ME</a>
 """
