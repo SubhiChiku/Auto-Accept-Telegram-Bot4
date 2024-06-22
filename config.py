@@ -48,5 +48,5 @@ class TxT(object):
 ⚠️ <b> Support HTML & Markdown formating in welcome or leave message for more info <a href=https://core.telegram.org/api/entities#:~:text=%2C%20MadelineProto.-,Allowed%20entities,-For%20example%20the> Link </a>. </b>
 
 
-<b>⦿ Developer:</b> <a href=https://t.me/Snowball_Official>ѕησωвαℓℓ ❄️</a>
+<b>⦿ Developer:</b> <a href=https://t.me/aayanokozi>~ 𝑨𝐘𝐀𝐍𝐎𝐊𝐎𝐙𝐈 ☠️</a>
 """
