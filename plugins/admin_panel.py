@@ -1,31 +1,30 @@
-from config import Config
-from helper.database import db
-from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import Client, filters
-from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
 import os
 import sys
 import time
 import asyncio
 import logging
 import datetime
+from pyrogram import Client, filters
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
+from config import Config
+from helper.database import db
 from pyromod.exceptions import ListenerTimeout
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-# approve all pending request is only for user for more info https://docs.pyrogram.org/api/methods/approve_all_chat_join_requests#pyrogram.Client.approve_all_chat_join_requests:~:text=Approve%20all%20pending%20join%20requests%20in%20a%20chat. only Usable by User not bot
-
 user = Client(name="User", api_id=Config.API_ID,
               api_hash=Config.API_HASH, session_string=Config.SESSION)
 
+app = Client("my_bot", api_id=Config.API_ID, api_hash=Config.API_HASH, bot_token=Config.BOT_TOKEN)
 
-@Client.on_message(filters.command(["stats", "status"]) & filters.user(Config.ADMIN))
+
+@app.on_message(filters.command(["stats", "status"]) & filters.user(Config.ADMIN))
 async def get_stats(bot, message):
     total_users = await db.total_users_count()
-    uptime = time.strftime("%Hh%Mm%Ss", time.gmtime(
-        time.time() - Config.BOT_UPTIME))
+    uptime = time.strftime("%Hh%Mm%Ss", time.gmtime(time.time() - Config.BOT_UPTIME))
     start_t = time.time()
     st = await message.reply('**Aᴄᴄᴇꜱꜱɪɴɢ Tʜᴇ Dᴇᴛᴀɪʟꜱ.....**')
     end_t = time.time()
@@ -33,24 +32,19 @@ async def get_stats(bot, message):
     await st.edit(text=f"**--Bᴏᴛ Sᴛᴀᴛᴜꜱ--** \n\n**⌚️ Bᴏᴛ Uᴩᴛɪᴍᴇ:** {uptime} \n**🐌 Cᴜʀʀᴇɴᴛ Pɪɴɢ:** `{time_taken_s:.3f} ᴍꜱ` \n**👭 Tᴏᴛᴀʟ Uꜱᴇʀꜱ:** `{total_users}`")
 
 
-# Restart to cancell all process
-@Client.on_message(filters.private & filters.command("restart") & filters.user(Config.ADMIN))
-async def restart_bot(b, m):
-    await m.reply_text("🔄__Rᴇꜱᴛᴀʀᴛɪɴɢ.....__")
+@app.on_message(filters.private & filters.command("restart") & filters.user(Config.ADMIN))
+async def restart_bot(bot, message):
+    await message.reply_text("🔄__Rᴇꜱᴛᴀʀᴛɪɴɢ.....__")
     os.execl(sys.executable, sys.executable, *sys.argv)
 
-# ⚠️ Broadcasting only those people who has started your bot
 
-
-@Client.on_message(filters.command("broadcast") & filters.user(Config.ADMIN) & filters.reply)
-async def broadcast_handler(bot: Client, m: Message):
-    await bot.send_message(Config.LOG_CHANNEL, f"{m.from_user.mention} or {m.from_user.id} Iꜱ ꜱᴛᴀʀᴛᴇᴅ ᴛʜᴇ Bʀᴏᴀᴅᴄᴀꜱᴛ......")
+@app.on_message(filters.command("broadcast") & filters.user(Config.ADMIN) & filters.reply)
+async def broadcast_handler(bot: Client, message: Message):
+    await bot.send_message(Config.LOG_CHANNEL, f"{message.from_user.mention} or {message.from_user.id} Iꜱ ꜱᴛᴀʀᴛᴇᴅ ᴛʜᴇ Bʀᴏᴀᴅᴄᴀꜱᴛ......")
     all_users = await db.get_all_users()
-    broadcast_msg = m.reply_to_message
-    sts_msg = await m.reply_text("Bʀᴏᴀᴅᴄᴀꜱᴛ Sᴛᴀʀᴛᴇᴅ..!")
-    done = 0
-    failed = 0
-    success = 0
+    broadcast_msg = message.reply_to_message
+    sts_msg = await message.reply_text("Bʀᴏᴀᴅᴄᴀꜱᴛ Sᴛᴀʀᴛᴇᴅ..!")
+    done, failed, success = 0, 0, 0
     start_time = time.time()
     total_users = await db.total_users_count()
     async for user in all_users:
@@ -74,7 +68,7 @@ async def send_msg(user_id, message):
         return 200
     except FloodWait as e:
         await asyncio.sleep(e.value)
-        return send_msg(user_id, message)
+        return await send_msg(user_id, message)
     except InputUserDeactivated:
         logger.info(f"{user_id} : Dᴇᴀᴄᴛɪᴠᴀᴛᴇᴅ")
         return 400
@@ -89,62 +83,55 @@ async def send_msg(user_id, message):
         return 500
 
 
-@Client.on_message(filters.private & filters.command('acceptall') & filters.user(Config.ADMIN))
+@app.on_message(filters.private & filters.command('acceptall') & filters.user(Config.ADMIN))
 async def handle_acceptall(bot: Client, message: Message):
     ms = await message.reply_text("**Please Wait...**", reply_to_message_id=message.id)
     chat_ids = await db.get_channel(Config.ADMIN)
 
-    if len(list(chat_ids)) == 0:
+    if not chat_ids:
         return await ms.edit("**I'm not admin in any Channel or Group yet !**")
 
     button = []
     for id in chat_ids:
         info = await bot.get_chat(id)
-        button.append([InlineKeyboardButton(
-            f"{info.title} {str(info.type).split('.')[1]}", callback_data=f'acceptallchat_{id}')])
+        button.append([InlineKeyboardButton(f"{info.title} {str(info.type).split('.')[1]}", callback_data=f'acceptallchat_{id}')])
 
-    await ms.edit("Select Channel or Group Bellow Where you want to accept pending request\n\nBelow Channels or Group I'm Admin there", reply_markup=InlineKeyboardMarkup(button))
+    await ms.edit("Select Channel or Group Below Where you want to accept pending requests\n\nBelow Channels or Group I'm Admin there", reply_markup=InlineKeyboardMarkup(button))
 
 
-@Client.on_message(filters.private & filters.command('declineall') & filters.user(Config.ADMIN))
+@app.on_message(filters.private & filters.command('declineall') & filters.user(Config.ADMIN))
 async def handle_declineall(bot: Client, message: Message):
     ms = await message.reply_text("**Please Wait...**", reply_to_message_id=message.id)
     chat_ids = await db.get_channel(Config.ADMIN)
 
-    if len(list(chat_ids)) == 0:
+    if not chat_ids:
         return await ms.edit("**I'm not admin in any Channel or Group yet !**")
 
     button = []
     for id in chat_ids:
         info = await bot.get_chat(id)
-        button.append([InlineKeyboardButton(
-            f"{info.title} {str(info.type).split('.')[1]}", callback_data=f'declineallchat_{id}')])
+        button.append([InlineKeyboardButton(f"{info.title} {str(info.type).split('.')[1]}", callback_data=f'declineallchat_{id}')])
 
-    await ms.edit("Select Channel or Group Bellow Where you want to accept pending request\n\nBelow Channels or Group I'm Admin there", reply_markup=InlineKeyboardMarkup(button))
+    await ms.edit("Select Channel or Group Below Where you want to decline pending requests\n\nBelow Channels or Group I'm Admin there", reply_markup=InlineKeyboardMarkup(button))
 
 
-@Client.on_callback_query(filters.regex('^acceptallchat_'))
+@app.on_callback_query(filters.regex('^acceptallchat_'))
 async def handle_accept_pending_request(bot: Client, update: CallbackQuery):
-    # await update.message.delete()
     chat_id = update.data.split('_')[1]
-    ms = await update.message.edit("**Please Wait Accepting the peding requests. ♻️**")
+    ms = await update.message.edit("**Please Wait Accepting the pending requests. ♻️**")
     try:
         while True:
             try:
                 await user.approve_all_chat_join_requests(chat_id=chat_id)
             except FloodWait as t:
-                asyncio.sleep(t.value)
+                await asyncio.sleep(t.value)
                 await user.approve_all_chat_join_requests(chat_id=chat_id)
             except Exception as e:
-                print('Error on line {}'.format(
-                    sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
-                pass
-
-                pass
-    except:
+                logger.error(f'Error on line {sys.exc_info()[-1].tb_lineno}: {type(e).__name__}, {e}')
+                break
         await update.message.reply_text(f"**Task Completed** ✓ **Approved ✅ All Pending Join Request**")
+    except:
         await ms.delete()
-
 
 @Client.on_callback_query(filters.regex('^declineallchat_'))
 async def handle_delcine_pending_request(bot: Client, update: CallbackQuery):
