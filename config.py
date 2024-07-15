@@ -7,27 +7,27 @@ id_pattern = re.compile(r'^.\d+$')
 
 class Config(object):
     # pyro client config
-    API_ID = os.environ.get("API_ID", "")  # ⚠️ Required
-    API_HASH = os.environ.get("API_HASH", "")  # ⚠️ Required
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")  # ⚠️ Required
+    API_ID = os.environ.get("API_ID", "21189715")  # ⚠️ Required
+    API_HASH = os.environ.get("API_HASH", "988a9111105fd2f0c5e21c2c2449edfd")  # ⚠️ Required
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7355530279:AAFGSCQ86so9apCFlukmtLWjosTesCSgNn0")  # ⚠️ Required
 
     # database config
-    DB_URL = os.environ.get("DB_URL", "")  # ⚠️ Required
+    DB_URL = os.environ.get("DB_URL", "mongodb+srv://ayanosuvii0925:subhichiku123@cluster0.uw8yxkl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # ⚠️ Required
     DB_NAME = os.environ.get("DB_NAME", "AutoAcceptBot")
 
     # other configs
     BOT_UPTIME = time.time()
-    START_PIC = os.environ.get("START_PIC", "https://telegra.ph/file/0ceb5f176f3cf877a08b5.jpg")
-    ADMIN = int(os.environ.get('ADMIN', ''))  # ⚠️ Required
+    START_PIC = os.environ.get("START_PIC", "https://te.legra.ph/file/05355ddcf792cc2912566.jpg")
+    ADMIN = int(os.environ.get('ADMIN', '7181106700'))  # ⚠️ Required
     DEFAULT_WELCOME_MSG = os.environ.get("WELCOME_MSG", "Hey {user},\nYour Request Approved ✅,\n\nWelcome to **{title}**")
     DEFAULT_LEAVE_MSG = os.environ.get("LEAVE_MSG", "By {user},\nSee You Again 👋\n\nFrom **{title}**")
 
     # user client config
-    SESSION = os.environ.get("SESSION", "")  # ⚠️ Required @SnowStringGenBot
+    SESSION = os.environ.get("SESSION", "BQHIjPwAn1gI_vtQ0mckg34CBXq8FJPk1J67eBgtvJsyDOFT3jEvzQE877UYR2tMX_c-8QIQKUJXttzAoXZCyLnGaLQzneiAEDTa9xBtPzBB_EY6bb5dC2PCdLpju5EP1wWClJt2KMDlBLsUlHxdA5ygYWXrDZbAdGk2sxMK2qs4jQOOKPsosxaaBEDGtrygPAxeGb5IZNwzuSr55CZvMZrlp_CV-XTVciRwia792nzkuzsjHcJLHhzFfoe5pBeTS1W4Z24LcICrCEdqQoNqOX_lAot1x4SjDFJMXI4VhiwXW1hXK7SYcJRzNfBAoqJwk6q1Ef7ckfuMUOCH10hDEpi0AkswAAAAGSN1vtAA")  # ⚠️ Required @SnowStringGenBot
 
     # wes response configuration
     WEBHOOK = bool(os.environ.get("WEBHOOK", True))
-    PORT = int(os.environ.get("PORT", "8080"))
+    PORT = int(os.environ.get("PORT", "4040"))
 
 
 class TxT(object):
@@ -48,5 +48,5 @@ class TxT(object):
 ⚠️ <b> Support HTML & Markdown formating in welcome or leave message for more info <a href=https://core.telegram.org/api/entities#:~:text=%2C%20MadelineProto.-,Allowed%20entities,-For%20example%20the> Link </a>. </b>
 
 
-<b>⦿ Developer:</b> <a href=https://t.me/Snowball_Official>ѕησωвαℓℓ ❄️</a>
+<b>⦿ Developer:</b> <a href=https://t.me/II_AYANO_II>Ayano ❄️</a>
 """
