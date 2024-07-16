@@ -12,7 +12,7 @@ class Config(object):
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "7355530279:AAFGSCQ86so9apCFlukmtLWjosTesCSgNn0")  # ⚠️ Required
 
     # database config
-    DB_URL = os.environ.get("DB_URL", "mongodb+srv://ayanosuvii0925:subhichiku123@cluster0.uw8yxkl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # ⚠️ Required
+    DB_URL = os.environ.get("DB_URL", "mongodb+srv://ahiravana999:ahiravana999@cluster0925.1torgfj.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0925")  # ⚠️ Required
     DB_NAME = os.environ.get("DB_NAME", "AutoAcceptBot")
 
     # other configs
