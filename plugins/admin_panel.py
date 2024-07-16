@@ -9,7 +9,6 @@ from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, 
 from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
 from config import Config
 from helper.database import db
-from pyromod.exceptions import ListenerTimeout
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
