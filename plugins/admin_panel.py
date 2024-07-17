@@ -9,7 +9,6 @@ import time
 import asyncio
 import logging
 import datetime
-from pyromod.exceptions import ListenerTimeout
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
