@@ -21,7 +21,7 @@ class Config:
     BOT_TOKEN = os.getenv("BOT_TOKEN", "7355530279:AAGBB4b193Lguq7YN461zUQ3tzCivRfSLzU")  # ⚠️ Required
 
     # Database config
-    DB_URL = os.getenv("DB_URL", "mongodb+srv://username:password@cluster0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # ⚠️ Required
+    DB_URL = os.getenv("DB_URL", "mongodb+srv://ayanosuvii0925:subhichiku123@cluster0.uw8yxkl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # ⚠️ Required
     DB_NAME = os.getenv("DB_NAME", "AutoAcceptBot")
 
     # Other configs
