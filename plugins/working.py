@@ -7,96 +7,79 @@ from config import Config
 from helper.database import db
 from pyrogram.errors import FloodWait
 
-logging.basicConfig(level=logging.ERROR)
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-
+async def send_welcome_message(bot, user_id, chat_title, welcome_message, media_file):
+    """Send a welcome message with optional media file to the user."""
+    try:
+        if media_file:
+            try:
+                await bot.send_photo(chat_id=user_id, photo=media_file, caption=welcome_message.format(user_id=user_id, title=chat_title))
+            except:
+                try:
+                    await bot.send_animation(chat_id=user_id, animation=media_file, caption=welcome_message.format(user_id=user_id, title=chat_title))
+                except:
+                    await bot.send_video(chat_id=user_id, video=media_file, caption=welcome_message.format(user_id=user_id, title=chat_title))
+        else:
+            await bot.send_message(chat_id=user_id, text=welcome_message.format(user_id=user_id, title=chat_title))
+    except Exception as e:
+        logger.error(f"Failed to send welcome message to {user_id}: {e}")
 
 async def approve_func(bot, message):
+    """Approve chat join requests and send a welcome message if configured."""
     try:
         chat = message.chat
         user = message.from_user
         await bot.approve_chat_join_request(chat_id=chat.id, user_id=user.id)
         await db.add_appro_user(bot, message)
-        bool_welcome = await db.get_bool_welc(Config.ADMIN)
 
-        if bool_welcome:
-            welcome_messagae = await db.get_welcome(Config.ADMIN)
-            photo_or_video_file = await db.get_welc_file(Config.ADMIN)
-            if photo_or_video_file:
-                try:
-                    try:
-                        await bot.send_photo(chat_id=user.id, photo=photo_or_video_file, caption=welcome_messagae.format(user=user.mention, title=chat.title) if welcome_messagae else Config.DEFAULT_WELCOME_MSG.format(user=user.mention, title=chat.title))
-                    except:
-                        await bot.send_animation(chat_id=user.id, animation=photo_or_video_file, caption=welcome_messagae.format(user=user.mention, title=chat.title) if welcome_messagae else Config.DEFAULT_WELCOME_MSG.format(user=user.mention, title=chat.title))
-                except:
-                    await bot.send_video(chat_id=user.id, video=photo_or_video_file, caption=welcome_messagae.format(user=user.mention, title=chat.title) if welcome_messagae else Config.DEFAULT_WELCOME_MSG.format(user=user.mention, title=chat.title))
-
-            else:
-                await bot.send_message(chat_id=user.id, text=welcome_messagae.format(user=user.mention, title=chat.title) if welcome_messagae else Config.DEFAULT_WELCOME_MSG.format(user=user.mention, title=chat.title))
+        if await db.get_bool_welc(Config.ADMIN):
+            welcome_message = await db.get_welcome(Config.ADMIN) or Config.DEFAULT_WELCOME_MSG
+            media_file = await db.get_welc_file(Config.ADMIN)
+            await send_welcome_message(bot, user.id, chat.title, welcome_message, media_file)
     except Exception as e:
-        pass
-        # logging.error(str(e))
+        logger.error(f"Error approving join request for {user.id} in {chat.id}: {e}")
 
-
-@Client.on_chat_join_request(filters.group | filters.channel)
-async def handle_autoAccept(bot: Client, message: ChatJoinRequest):
-    admin_permission = await db.get_bool_auto_accept(Config.ADMIN)
-    admin_channel_permission = await db.get_admin_channels()
-    channel_permission = admin_channel_permission[f'{message.chat.id}']
-    if admin_permission and channel_permission:
-        try:
-            await approve_func(bot, message)
-        except FloodWait:
-            await approve_func(bot, message)
-                
-    else:
-        pass
-    
-@Client.on_chat_member_updated()
-async def handle_chat(bot: Client, update: ChatMemberUpdated):
-    left_user = update.old_chat_member
-
-    if left_user:
-        try:
-            bool_leave = await db.get_bool_leav(Config.ADMIN)
-            if bool_leave:
-                leave_message = await db.get_leave(Config.ADMIN)
-                photo_or_video_file = await db.get_leav_file(Config.ADMIN)
-                if photo_or_video_file:
-                    try:
-                        try:
-                            await bot.send_photo(chat_id=left_user.user.id, photo=photo_or_video_file, caption=leave_message.format(user=left_user.user.mention, title=update.title) if leave_message else Config.DEFAULT_LEAVE_MSG.format(user=left_user.user.mention, title=update.chat.title))
-                        except:
-                            await bot.send_animation(chat_id=left_user.user.id, animation=photo_or_video_file, caption=leave_message.format(user=left_user.user.mention, title=update.chat.title) if leave_message else Config.DEFAULT_LEAVE_MSG.format(user=left_user.user.mention, title=update.chat.title))
-                    except:
-                        await bot.send_video(chat_id=left_user.user.id, video=photo_or_video_file, caption=leave_message.format(user=left_user.user.mention, title=update.chat.title) if leave_message else Config.DEFAULT_LEAVE_MSG.format(user=left_user.user.mention, title=update.chat.title))
-
-                else:
-                    await bot.send_message(chat_id=left_user.user.id, text=leave_message.format(user=left_user.user.mention, title=update.chat.title) if leave_message else Config.DEFAULT_LEAVE_MSG.format(user=left_user.user.mention, title=update.chat.title))
-
-        except:
-            # print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e).__name__, e)
-            pass
-        
+@Client.on_chat_join_request(filters.group)
+async def handle_auto_accept(bot: Client, message: ChatJoinRequest):
+    """Automatically approve chat join requests based on admin configuration."""
     try:
-        if update.new_chat_member.user.id == bot.me.id:
-            # Get the chat id
+        if await db.get_bool_auto_accept(Config.ADMIN) and await db.get_admin_channels().get(str(message.chat.id)):
+            await approve_func(bot, message)
+    except FloodWait as e:
+        logger.warning(f"FloodWait encountered: {e}")
+        await asyncio.sleep(e.value)
+        await approve_func(bot, message)
+    except Exception as e:
+        logger.error(f"Error handling join request: {e}")
+
+@Client.on_chat_member_updated()
+async def handle_chat_member_update(bot: Client, update: ChatMemberUpdated):
+    """Handle updates to chat member statuses, including bot promotions and demotions."""
+    try:
+        if update.old_chat_member and update.old_chat_member.user.id == bot.me.id:
             chat_id = update.chat.id
-        
-            # Check if the bot was promoted to admin
+            if update.old_chat_member.status in [enums.ChatMemberStatus.LEFT, enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.ADMINISTRATOR]:
+                await db.remove_channel(Config.ADMIN, chat_id)
+                await db.remove_admin_channel(str(chat_id))
+
+        if update.new_chat_member.user.id == bot.me.id:
+            chat_id = update.chat.id
             if update.new_chat_member.status == enums.ChatMemberStatus.ADMINISTRATOR:
-                # Add the channel to the bot's list
                 await db.set_channel(Config.ADMIN, chat_id)
                 await db.set_admin_channel(chat_id, True)
-            
-    except:
-        if update.old_chat_member.user.id == bot.me.id:
-            # Get the chat id
-            chat_id = update.chat.id
+    except Exception as e:
+        logger.error(f"Error handling chat member update: {e}")
 
-            # Check if the bot was demoted or kicked
-            if update.old_chat_member.status in [enums.ChatMemberStatus.LEFT, enums.ChatMemberStatus.BANNED, enums.ChatMemberStatus.ADMINISTRATOR]:
-                # Remove the channel from the bot's list
-                await db.remove_channel(Config.ADMIN, chat_id)
-                await db.remove_admin_channel(f'{chat_id}')
-            
+if __name__ == "__main__":
+    app = Client(
+        "approver",
+        api_id=Config.API_ID,
+        api_hash=Config.API_HASH,
+        bot_token=Config.BOT_TOKEN
+    )
+
+    logger.info("Bot is starting...")
+    app.run()
