@@ -7,12 +7,12 @@ id_pattern = re.compile(r'^.\d+$')
 
 class Config(object):
     # pyro client config
-    API_ID = os.environ.get("API_ID", "")  # ⚠️ Required
-    API_HASH = os.environ.get("API_HASH", "")  # ⚠️ Required
-    BOT_TOKEN = os.environ.get("BOT_TOKEN", "")  # ⚠️ Required
+    API_ID = os.environ.get("API_ID", "21998505")  # ⚠️ Required
+    API_HASH = os.environ.get("API_HASH", "2ceae7fd0a32dcdb44561c7a3edebb53")  # ⚠️ Required
+    BOT_TOKEN = os.environ.get("BOT_TOKEN", "7355530279:AAFGSCQ86so9apCFlukmtLWjosTesCSgNn0")  # ⚠️ Required
 
     # database config
-    DB_URL = os.environ.get("DB_URL", "")  # ⚠️ Required
+    DB_URL = os.environ.get("DB_URL", "mongodb+srv://ayanosuvii0925:subhichiku123@cluster0.uw8yxkl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")  # ⚠️ Required
     DB_NAME = os.environ.get("DB_NAME", "AutoAcceptBot")
 
     # other configs
@@ -23,7 +23,7 @@ class Config(object):
     DEFAULT_LEAVE_MSG = os.environ.get("LEAVE_MSG", "By {user},\nSee You Again 👋\n\nFrom **{title}**")
 
     # user client config
-    SESSION = os.environ.get("SESSION", "")  # ⚠️ Required @SnowStringGenBot
+    SESSION = os.environ.get("SESSION", "BQFPq6kAZtnKytxTCg9GNn7bnt-LqiVILuTr-gOgIGNPjg9hfnyjnot4_rJBgxWfHlbuXK7bBRgxt6GAm52kRNvHAkHDCSLxN7PXHvuntEgXB9YCAt9_Kp9mftTz2NsjxWA5UT1TCPN6nhi-8Z1etF3tQtRgTcALSs8lPTPGYsVu-o4yomTzHaz_OXYdeVSrlLYeymFlotz8URBX6dfqXUlBIb_qxC0wsAbW7PMfMbyw_CFRCJocWmQJXHwLKLNhK8dhG7iVZ9Jqq8lHeaMUszCKiDhRXU0-havtTHy3o6fOR-tEIJ_weCWo-kAB8pWO7YWsjavK5u-T0k1QnRFlGEv-x0Z1HgAAAAGtSVqzAA")  # ⚠️ Required @SnowStringGenBot
 
     # wes response configuration
     WEBHOOK = bool(os.environ.get("WEBHOOK", True))
